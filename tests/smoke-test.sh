@@ -7,9 +7,14 @@ set -eu
 prod_image="ecr-ecs-deploy-experiment-image:smoke"
 prod_port="${SMOKE_PROD_PORT:-18080}"
 
+# A separate project name so this never stops your own `docker compose up` session.
+smoke_compose() {
+  docker compose -p ecr-ecs-deploy-experiment-smoke "$@"
+}
+
 cleanup() {
   docker rm -f ecr-ecs-deploy-experiment-smoke >/dev/null 2>&1 || true
-  docker compose down >/dev/null 2>&1 || true
+  smoke_compose down >/dev/null 2>&1 || true
 }
 trap cleanup EXIT
 
@@ -32,5 +37,5 @@ docker build -t "$prod_image" .
 docker run -d --name ecr-ecs-deploy-experiment-smoke -p "127.0.0.1:$prod_port:80" "$prod_image" >/dev/null
 expect_index "http://127.0.0.1:$prod_port/"
 
-docker compose up -d --build
+smoke_compose up -d --build
 expect_index "http://127.0.0.1:8080/"
