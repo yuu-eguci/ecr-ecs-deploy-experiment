@@ -3,9 +3,14 @@ ECR + ECS deploy experiment
 
 nginx の静的ページ (`html/`) を ECR に push して、ECS (Fargate) にデプロイする実験。
 
+- Docker: 対応!
+- Linter: hadolint / actionlint / ShellCheck
+- Test: shell script
+- AWS: ECR / ECS (Fargate)
+
 > [!WARNING]
-> デプロイ用の workflow (`.github/workflows/aws.yml`) は手動実行のみ。main に push しても AWS は動かない。
-> いまは Actions 画面で workflow 自体も disable してある。デプロイするときは enable してから「Run workflow」する。
+> デプロイ用の workflow (`.github/workflows/aws.yml`) は手動実行だけ。 `main` に push しても AWS は動かない。
+> いまは Actions 画面でも workflow を無効にしてある。デプロイするときは有効にしてから「Run workflow」で実行する。
 
 この実験をするための手順。
 
@@ -29,10 +34,10 @@ docker compose up --build
 
 ## テストと lint
 
-Docker (と curl) があれば回せる。PR と main への push では、CI (`.github/workflows/ci.yml`) が同じものを回している。CI は secrets を使わず、image もどこにも push しない。
+Docker と curl があれば回せる。PR と main への push では、CI (`.github/workflows/ci.yml`) が同じものを回している。CI は secrets を使わず、image もどこにも push しない。
 
 ```bash
-# 本番用 image と compose の両方が html/index.html をそのまま返すか (18080 と 8080 番ポートを使う)
+# 本番用 image と compose の両方が html/index.html をそのまま返すか (ポート 18080 と 8080 を使う)
 tests/smoke-test.sh
 
 # aws.yml が手動実行だけになっているか
@@ -51,7 +56,7 @@ docker run --rm -v "$PWD":/mnt koalaman/shellcheck:stable tests/*.sh
 
 https://github.com/yuu-eguci/ecr-ecs-deploy-experiment/actions/new?category=none&query=aws+ecs
 
-ただしテンプレートのままだと main に push するたびにデプロイが走るので、この repo ではトリガーを `workflow_dispatch` (手動実行) に変えてある。
+ただし、テンプレートのままだと main に push するたびにデプロイが走るので、この repo ではトリガーを `workflow_dispatch` (手動実行) に変えてある。
 
 ## aws.yml のドキュメントコメントに従って ECR とか ECS をセッティング
 
@@ -119,6 +124,6 @@ IAM > ユーザー > 該当ユーザー > 認証情報タブ でアクセスキ�
 
 ## ローカルでは再現できないもの
 
-ECR、ECS (Fargate)、IAM は AWS 上にしかないので、Docker では再現できない。ローカルで確認できるのは image の build と nginx の動作まで。`.aws/task-definition.json` も、AWS に登録してみるまで正しいかはわからない。
+ECR、ECS (Fargate)、IAM は AWS 上の機能なので、Docker では再現できない。ローカルで確認できるのは image の build と nginx の動作まで。 `.aws/task-definition.json` が正しいかは、AWS へ登録しないと確認できない。
 
-ECS service が動いている間や ECR に image が残っている間は課金が続くので、実験が終わったら消す。
+実験後も ECS サービスや ECR の image を残すと課金が続くので、使い終わったら削除する。
