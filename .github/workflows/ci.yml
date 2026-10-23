@@ -32,6 +32,9 @@ jobs:
           docker run --rm -i hadolint/hadolint:v2.15.1 < "$f"
         done
 
+    - name: actionlint
+      run: docker run --rm -v "$PWD":/repo -w /repo rhysd/actionlint:1.7.12 -no-color
+
     - name: shellcheck
       run: shellcheck tests/*.sh
 
