@@ -1,0 +1,10 @@
+# Local development only: serves ./html live from the host on http://localhost:8080
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
