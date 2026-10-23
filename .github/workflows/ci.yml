@@ -18,3 +18,29 @@ jobs:
 
     - name: Check aws.yml triggers
       run: tests/deploy-workflow-is-manual.sh
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: hadolint
+      run: |
+        for f in Dockerfile Dockerfile.dev; do
+          docker run --rm -i hadolint/hadolint:v2.15.1 < "$f"
+        done
+
+    - name: shellcheck
+      run: shellcheck tests/*.sh
+
+  smoke:
+    name: Docker smoke test (local only, no push)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v7
+
+    - name: Build and serve locally
+      run: tests/smoke-test.sh
