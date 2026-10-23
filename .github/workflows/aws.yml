@@ -1,5 +1,8 @@
 # This workflow will build and push a new container image to Amazon ECR,
-# and then will deploy a new task definition to Amazon ECS, when there is a push to the "main" branch.
+# and then will deploy a new task definition to Amazon ECS.
+#
+# It only runs when started manually (Actions > "Deploy to Amazon ECS" > "Run workflow"),
+# so pushes and pull requests never touch AWS. tests/deploy-workflow-is-manual.sh enforces this.
 #
 # To use this workflow, you will need to complete the following set-up steps:
 #
@@ -27,8 +30,7 @@
 name: Deploy to Amazon ECS
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-northeast-1                   # set this to your preferred AWS region, e.g. us-west-1
